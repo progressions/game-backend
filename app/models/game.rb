@@ -1,10 +1,18 @@
-# app/models/game.rb
 class Game < ApplicationRecord
   belongs_to :user
   belongs_to :theme
+  belongs_to :starting_room, class_name: "Room", optional: true
   has_many :rooms, dependent: :destroy
-  has_many :players, dependent: :destroy
-  has_many :player_histories, through: :players
-  has_many :connections, through: :rooms
-  validates :user, :theme, presence: true
+
+  validates :user, presence: true
+  validates :theme, presence: true
+  validates :title, presence: true
+
+  before_destroy :clear_starting_room
+
+  private
+
+  def clear_starting_room
+    update(starting_room_id: nil)
+  end
 end

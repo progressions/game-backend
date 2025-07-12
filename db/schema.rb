@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_07_12_010012) do
+ActiveRecord::Schema[8.0].define(version: 2025_07_12_221612) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -18,7 +18,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_12_010012) do
     t.uuid "from_room_id", null: false
     t.uuid "to_room_id"
     t.string "label", null: false
-    t.string "description", null: false
+    t.string "description"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["from_room_id"], name: "index_connections_on_from_room_id"
@@ -30,6 +30,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_12_010012) do
     t.uuid "theme_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "title"
+    t.uuid "starting_room_id"
     t.index ["theme_id"], name: "index_games_on_theme_id"
     t.index ["user_id"], name: "index_games_on_user_id"
   end
@@ -81,6 +83,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_12_010012) do
 
   add_foreign_key "connections", "rooms", column: "from_room_id"
   add_foreign_key "connections", "rooms", column: "to_room_id"
+  add_foreign_key "games", "rooms", column: "starting_room_id"
   add_foreign_key "games", "themes"
   add_foreign_key "games", "users"
   add_foreign_key "player_histories", "games"
