@@ -23,15 +23,19 @@ module Api
       def move
         room_id = params[:room_id]
         return render json: { errors: ['Room ID is required'] }, status: :bad_request unless room_id
+        connection_id = params[:connection_id]
+        return render json: { errors: ['Connection ID is required'] }, status: :bad_request unless connection_id
 
+        connection = Connection.find_by(id: connection_id)
         destination_room = Room.find_by(id: room_id)
+        return render json: { errors: ['Connection not found'] }, status: :not_found unless connection
         return render json: { errors: ['Destination room not found'] }, status: :not_found unless destination_room
         return render json: { errors: ['Destination room does not belong to the player’s game'] }, status: :unprocessable_entity unless destination_room.game_id == @player.game_id
         return render json: { errors: ['No valid connection to destination room'] }, status: :bad_request unless valid_connection?(@player.current_room, destination_room)
 
         move_player(destination_room)
         render json: {
-          message: "Moved to #{destination_room.title}.",
+          message: "Moved through #{connection.label} to #{destination_room.title}.",
           player: @player,
           room: destination_room,
           connections: destination_room.connections.as_json(only: [:id, :label, :to_room_id])
