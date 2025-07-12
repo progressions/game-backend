@@ -19,8 +19,9 @@ module Api
       end
 
       def move
-        action = params[:action_text].downcase
-        connection = @player.current_room.connections.find { |c| action.include?(c.label.downcase) }
+        action = params[:action_text]&.downcase&.strip
+        Rails.logger.debug "Searching for connection with label: #{action}"
+        connection = @player.current_room.connections.find_by("LOWER(label) = ?", action)
 
         if connection
           if connection.to_room
@@ -35,7 +36,7 @@ module Api
           else
             render json: { error: 'Destination room not yet generated' }, status: :unprocessable_entity
           end
-        elsif action.match?(/\A(look|examine)\b/)
+        elsif action&.match?(/\A(look|examine)\b/)
           render json: {
             message: "You look around #{@player.current_room.title}.",
             room: @player.current_room,
