@@ -39,7 +39,7 @@ RSpec.describe 'Api::V1::Rooms', type: :request do
 
     it 'returns 404 for a room not in user’s games' do
       other_user = User.create!(email: 'other@example.com', password: 'password123')
-      other_game = Game.create!(user: other_user, theme: theme)
+      other_game = Game.create!(title: "Other Game", user: other_user, theme: theme)
       other_room = Room.create!(title: 'Other Room', description: 'A different place.', game: other_game)
       get "/api/v1/rooms/#{other_room.id}", headers: { 'Authorization' => "Bearer #{token}" }
       expect(response).to have_http_status(:not_found)
