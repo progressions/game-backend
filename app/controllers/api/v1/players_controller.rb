@@ -1,4 +1,3 @@
-# app/controllers/api/v1/players_controller.rb
 module Api
   module V1
     class PlayersController < ApplicationController
@@ -6,14 +5,14 @@ module Api
       before_action :set_player, only: [:show, :move]
 
       def show
-        render json: @player.as_json(include: { current_room: { include: { connections: { only: [:id, :label, :description, :to_room_id] } } } })
+        render json: @player, serializer: PlayerSerializer
       end
 
       def create
         player = Player.new(player_params)
-        if player.current_room && player.game && player.current_room.game_id != player.game_id
-          render json: { errors: ['Room must belong to the specified game'] }, status: :unprocessable_entity
-        elsif player.save
+        return render json: { errors: ['Room must belong to the specified game'] }, status: :unprocessable_entity if invalid_room_game?(player)
+
+        if player.save
           PlayerHistory.create!(player: player, room: player.current_room, game: player.game, visited_at: Time.now)
           render json: player, status: :created
         else
@@ -22,36 +21,21 @@ module Api
       end
 
       def move
-        action = params[:action_text]&.downcase&.strip
-        Rails.logger.debug "Searching for connection with label: #{action}"
-        connection = @player.current_room.connections.find_by("LOWER(label) = ?", action)
+        room_id = params[:room_id]
+        return render json: { errors: ['Room ID is required'] }, status: :bad_request unless room_id
 
-        if connection
-          if connection.to_room
-            if connection.to_room.game_id == @player.game_id
-              @player.update!(current_room: connection.to_room)
-              PlayerHistory.create!(player: @player, room: connection.to_room, game: @player.game, visited_at: Time.now)
-              render json: {
-                message: "Moved through #{connection.label}.",
-                player: @player,
-                room: connection.to_room,
-                connections: connection.to_room.connections.as_json(only: [:id, :label, :description, :to_room_id])
-              }
-            else
-              render json: { errors: ['Destination room does not belong to the player’s game'] }, status: :unprocessable_entity
-            end
-          else
-            render json: { errors: ['Destination room not yet generated'] }, status: :unprocessable_entity
-          end
-        elsif action&.match?(/\A(look|examine)\b/)
-          render json: {
-            message: "You look around #{@player.current_room.title}.",
-            room: @player.current_room,
-            connections: @player.current_room.connections.as_json(only: [:id, :label, :description, :to_room_id])
-          }
-        else
-          render json: { errors: ['Invalid action. Use a connection label or "look".'] }, status: :bad_request
-        end
+        destination_room = Room.find_by(id: room_id)
+        return render json: { errors: ['Destination room not found'] }, status: :not_found unless destination_room
+        return render json: { errors: ['Destination room does not belong to the player’s game'] }, status: :unprocessable_entity unless destination_room.game_id == @player.game_id
+        return render json: { errors: ['No valid connection to destination room'] }, status: :bad_request unless valid_connection?(@player.current_room, destination_room)
+
+        move_player(destination_room)
+        render json: {
+          message: "Moved to #{destination_room.title}.",
+          player: @player,
+          room: destination_room,
+          connections: destination_room.connections.as_json(only: [:id, :label, :to_room_id])
+        }
       end
 
       private
@@ -64,6 +48,19 @@ module Api
 
       def player_params
         params.require(:player).permit(:current_room_id, :game_id)
+      end
+
+      def invalid_room_game?(player)
+        player.current_room && player.game && player.current_room.game_id != player.game_id
+      end
+
+      def valid_connection?(current_room, destination_room)
+        current_room.connections.exists?(to_room_id: destination_room.id)
+      end
+
+      def move_player(room)
+        @player.update!(current_room: room)
+        PlayerHistory.create!(player: @player, room: room, game: @player.game, visited_at: Time.now)
       end
     end
   end
