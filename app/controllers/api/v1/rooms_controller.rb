@@ -17,9 +17,8 @@ module Api
       private
 
       def set_room
-        @room = Room.joins(:game).where(games: { user_id: current_user.id }).find(params[:id])
-      rescue ActiveRecord::RecordNotFound
-        render json: { error: 'Room not found' }, status: :not_found
+        @room = Room.joins(:game).where(games: { user_id: current_user.id }).find_by(id: params[:id])
+        render json: { errors: ['Room not found'] }, status: :not_found unless @room
       end
     end
   end

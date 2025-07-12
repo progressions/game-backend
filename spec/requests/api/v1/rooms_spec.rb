@@ -24,7 +24,7 @@ RSpec.describe 'Api::V1::Rooms', type: :request do
     it 'returns 401 if not authenticated' do
       get '/api/v1/rooms'
       expect(response).to have_http_status(:unauthorized)
-      expect(JSON.parse(response.body)['error']).to eq('Unauthorized')
+      expect(JSON.parse(response.body)['errors']).to include('Unauthorized')
     end
   end
 
@@ -43,7 +43,7 @@ RSpec.describe 'Api::V1::Rooms', type: :request do
       other_room = Room.create!(title: 'Other Room', description: 'A different place.', game: other_game)
       get "/api/v1/rooms/#{other_room.id}", headers: { 'Authorization' => "Bearer #{token}" }
       expect(response).to have_http_status(:not_found)
-      expect(JSON.parse(response.body)['error']).to eq('Room not found')
+      expect(JSON.parse(response.body)['errors']).to include('Room not found')
     end
   end
 end

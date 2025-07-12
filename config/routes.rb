@@ -7,6 +7,7 @@ Rails.application.routes.draw do
         post 'move', on: :member
       end
       resources :themes, only: [:index]
+      resources :games, only: [:index, :create, :show]
       post 'login', to: 'sessions#create'
       delete 'logout', to: 'sessions#destroy'
     end
