@@ -42,7 +42,7 @@ gem "rack-cors"
 group :development, :test do
   gem 'pry-rails', require: false
 
-  gem 'rspec-rails', '~> 6.1.0'
+  gem 'rspec-rails', '~> 8.0.1'
 
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem
   gem "debug", platforms: %i[ mri windows ], require: "debug/prelude"
