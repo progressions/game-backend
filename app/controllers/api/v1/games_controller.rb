@@ -7,7 +7,7 @@ module Api
 
       def index
         games = Game.where(user_id: current_user.id)
-        render json: games.as_json(include: { theme: { only: [:id, :name, :description] } })
+        render json: games
       end
 
       def create
