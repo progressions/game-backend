@@ -1,5 +1,26 @@
+# spec/models/connection_spec.rb
 require 'rails_helper'
 
 RSpec.describe Connection, type: :model do
-  pending "add some examples to (or delete) #{__FILE__}"
+  let(:room) { Room.create!(title: 'Twilight Hollow', description: 'A stone chamber.') }
+
+  it 'is valid with a from_room, label, and description' do
+    connection = Connection.create!(from_room: room, label: 'Mossy Trail', description: 'A winding path of soft moss.')
+    expect(connection).to be_valid
+  end
+
+  it 'is invalid without a label' do
+    connection = Connection.new(from_room: room, description: 'A winding path.')
+    expect(connection).not_to be_valid
+  end
+
+  it 'is invalid without a description' do
+    connection = Connection.new(from_room: room, label: 'Mossy Trail')
+    expect(connection).not_to be_valid
+  end
+
+  it 'is invalid without a from_room' do
+    connection = Connection.new(label: 'Mossy Trail', description: 'A winding path.')
+    expect(connection).not_to be_valid
+  end
 end
