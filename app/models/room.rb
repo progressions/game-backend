@@ -7,6 +7,9 @@ class Room < ApplicationRecord
   # Connections where this room is the 'to' room
   has_many :incoming_connections, class_name: "Connection", foreign_key: :to_room_id, dependent: :destroy
 
+  validates :title, presence: true
+  validates :description, presence: true
+
   # Combine outgoing and incoming connections
   def connections
     Connection.where("from_room_id = :id OR to_room_id = :id", id: id)
