@@ -15,7 +15,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_12_221612) do
   enable_extension "pg_catalog.plpgsql"
 
   create_table "connections", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
-    t.uuid "from_room_id", null: false
+    t.uuid "from_room_id"
     t.uuid "to_room_id"
     t.string "label", null: false
     t.string "description"
