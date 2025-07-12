@@ -2,21 +2,22 @@
 module Api
   module V1
     class RoomsController < ApplicationController
+      before_action :authenticate_user
       before_action :set_room, only: [:show]
 
       def index
-        rooms = Room.all
-        render json: rooms, include: { connections: { only: [:id, :label, :description, :to_room_id] } }
+        rooms = Room.joins(:game).where(games: { user_id: current_user.id })
+        render json: rooms.as_json(include: { connections: { only: [:id, :label, :description, :to_room_id] } })
       end
 
       def show
-        render json: @room, include: { connections: { only: [:id, :label, :description, :to_room_id] } }
+        render json: @room.as_json(include: { connections: { only: [:id, :label, :description, :to_room_id] } })
       end
 
       private
 
       def set_room
-        @room = Room.find(params[:id])
+        @room = Room.joins(:game).where(games: { user_id: current_user.id }).find(params[:id])
       rescue ActiveRecord::RecordNotFound
         render json: { error: 'Room not found' }, status: :not_found
       end

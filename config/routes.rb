@@ -7,6 +7,8 @@ Rails.application.routes.draw do
         post 'move', on: :member
       end
       resources :themes, only: [:index]
+      post 'login', to: 'sessions#create'
+      delete 'logout', to: 'sessions#destroy'
     end
   end
 end
