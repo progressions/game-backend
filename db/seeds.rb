@@ -1,7 +1,6 @@
 # Create or find a sample user
 user = User.find_or_create_by!(email: "test@example.com") do |u|
   u.password = "password123"
-  u.password_confirmation = "password123"
 end
 
 # Create or find a sample theme with description
@@ -31,6 +30,4 @@ game.update!(starting_room: room1) unless game.starting_room_id
 
 # Create connections if they don't exist
 Connection.find_or_create_by!(from_room: room1, to_room: room2, label: "Mossy Trail")
-Connection.find_or_create_by!(from_room: room2, to_room: room1, label: "Back to Clearing")
 Connection.find_or_create_by!(from_room: room1, to_room: room3, label: "River Path")
-Connection.find_or_create_by!(from_room: room3, to_room: room1, label: "Back to Clearing")

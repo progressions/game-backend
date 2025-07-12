@@ -37,8 +37,7 @@ module Api
         render json: {
           message: "Moved through #{connection.label} to #{destination_room.title}.",
           player: @player,
-          room: destination_room,
-          connections: destination_room.connections.as_json(only: [:id, :label, :to_room_id])
+          room: RoomSerializer.new(destination_room)
         }
       end
 
@@ -59,7 +58,7 @@ module Api
       end
 
       def valid_connection?(current_room, destination_room)
-        current_room.connections.exists?(to_room_id: destination_room.id)
+        current_room.connections.exists?(to_room_id: destination_room.id) || current_room.connections.exists?(from_room_id: destination_room.id)
       end
 
       def move_player(room)

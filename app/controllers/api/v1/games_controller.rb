@@ -20,7 +20,7 @@ module Api
       end
 
       def show
-        render json: @game.as_json(include: { theme: { only: [:id, :name, :description] } })
+        render json: @game
       end
 
       private
