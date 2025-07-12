@@ -31,7 +31,7 @@ module Api
       end
 
       def game_params
-        params.require(:game).permit(:theme_id)
+        params.require(:game).permit(:theme_id, :title)
       end
     end
   end

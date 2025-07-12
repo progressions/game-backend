@@ -4,7 +4,7 @@ require 'rails_helper'
 RSpec.describe 'Api::V1::Players', type: :request do
   let(:user) { User.create!(email: 'test@example.com', password: 'password123') }
   let(:theme) { Theme.create!(name: 'fantasy', description: 'A world of magic.') }
-  let(:game) { Game.create!(user: user, theme: theme) }
+  let(:game) { Game.create!(title: "A fantasy game", user: user, theme: theme) }
   let!(:room1) { Room.create!(title: 'Twilight Hollow', description: 'A stone chamber.', game: game) }
   let!(:room2) { Room.create!(title: 'Mossy Glade', description: 'A clearing with glowing flowers.', game: game) }
   let!(:connection) { Connection.create!(from_room: room1, to_room: room2, label: 'Mossy Trail', description: 'A winding path.') }

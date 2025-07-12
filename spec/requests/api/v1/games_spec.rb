@@ -4,7 +4,7 @@ require 'rails_helper'
 RSpec.describe 'Api::V1::Games', type: :request do
   let(:user) { User.create!(email: 'test@example.com', password: 'password123') }
   let(:theme) { Theme.create!(name: 'fantasy', description: 'A world of magic.') }
-  let!(:game) { Game.create!(user: user, theme: theme) }
+  let!(:game) { Game.create!(title: "A fantasy game", user: user, theme: theme) }
   let(:token) do
     JWT.encode({ user_id: user.id, exp: 24.hours.from_now.to_i }, Rails.application.secret_key_base, 'HS256')
   end
@@ -27,7 +27,7 @@ RSpec.describe 'Api::V1::Games', type: :request do
 
   describe 'POST /api/v1/games' do
     it 'creates a new game with a theme' do
-      post '/api/v1/games', params: { game: { theme_id: theme.id } }, headers: { 'Authorization' => "Bearer #{token}" }
+      post '/api/v1/games', params: { game: { title: "A fun game", theme_id: theme.id } }, headers: { 'Authorization' => "Bearer #{token}" }
       expect(response).to have_http_status(:created)
       json = JSON.parse(response.body)
       expect(json['user_id']).to eq(user.id)
@@ -57,7 +57,7 @@ RSpec.describe 'Api::V1::Games', type: :request do
 
     it 'returns 404 for a game not owned by user' do
       other_user = User.create!(email: 'other@example.com', password: 'password123')
-      other_game = Game.create!(user: other_user, theme: theme)
+      other_game = Game.create!(title: "Other game", user: other_user, theme: theme)
       get "/api/v1/games/#{other_game.id}", headers: { 'Authorization' => "Bearer #{token}" }
       expect(response).to have_http_status(:not_found)
       expect(JSON.parse(response.body)['errors']).to include('Game not found')
